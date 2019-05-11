@@ -10,6 +10,7 @@ public:
 	string Name;
 	unsigned long long int Stocks;
 	long long int PerOneStock;
+	unsigned long long int Months;
 
 	ListItem* Next;
 	ListItem* Previous;
@@ -35,6 +36,7 @@ private:
 	void Print(ListItem*,int);
 	void ChangePerMonth(ListItem*&,Tree*);
 	bool DoesExist(string, ListItem*);
+	unsigned long long int GetDuration(string,const ListItem*);
 
 	vector<string> Delete(vector<string>,ListItem*);
 public:
@@ -51,7 +53,7 @@ public:
 	void Print();
 	void ChangePerMonth(Tree*);
 	bool DoesExist(string);
-
+	unsigned long long int GetDuration(string);
 
 	vector<string> Delete();
 };

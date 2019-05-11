@@ -25,6 +25,7 @@ ListItem::ListItem(string Name,unsigned long long int Stocks, Tree* tree) {
 	this->PerOneStock = tree->GetPerStock(this->Name);
 	this->Next = nullptr;
 	this->Previous = nullptr;
+	this->Months = 0;
 }
 
 
@@ -159,7 +160,8 @@ void List::Print(ListItem* head, int Index) {
 		cout <<endl << "\t\t";
 		Index = 0;
 	}
-	cout << head->Name << " : " << head->Stocks * head->PerOneStock << "Kè (A: " << head->Stocks << ")" << "    ";
+	cout << head->Name << " : " << head->Stocks * head->PerOneStock
+		<< "Kè (A: " << head->Stocks << ", M: " << head->Months << ")" << "    ";
 	
 	Print(head->Next, Index+=1);
 }
@@ -173,6 +175,7 @@ void List::ChangePerMonth(ListItem* &head,Tree* tree) {
 	if (head == nullptr) {
 		return;
 	}
+	head->Months++;
 	head->PerOneStock = tree->GetPerStock(head->Name);
 	ChangePerMonth(head->Next, tree);
 
@@ -180,9 +183,6 @@ void List::ChangePerMonth(ListItem* &head,Tree* tree) {
 	{
 		Remove(head->Name,head);
 	}
-
-
-
 }
 
 bool List::DoesExist(string Name) {
@@ -195,6 +195,16 @@ bool List::DoesExist(string Name, ListItem* head) {
 	return DoesExist(Name, head->Next);
 }
 
+unsigned long long int List::GetDuration(string Name) {
+	return GetDuration(Name, this->Head);
+}
+
+unsigned long long int List::GetDuration(string Name, const ListItem* head) {
+	if (head->Name == Name) {
+		return head->Months;
+	}
+	return GetDuration(Name, head->Next);
+}
 
 
 vector<string> List::Delete() {

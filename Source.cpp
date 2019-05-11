@@ -87,7 +87,7 @@ void AfterMonth(unsigned long long int Months, List* list, Tree* tree,vector<str
 
 	for (unsigned long long int i = Months; i > 0; i--) {
 
-		CleanConsole(5);
+		CleanConsole(0);
 
 		tree->ChangeMonth();
 		for (auto const &Name : tree->Delete()) {
@@ -195,7 +195,7 @@ int main() {
 			cout << "Název spoleènosti: ";
 			cin >> Name;
 			PrintSpace(2);
-			cout << "(Koupit)Poèet Akcií: ";
+			cout << "Poèet Akcií(Koupit): ";
 			cin >> Stocks;
 
 			PrintSpace(2);
@@ -226,7 +226,7 @@ int main() {
 			cout << "Název spoleènosti: ";
 			cin >> Name;
 			PrintSpace(2);
-			cout << "(Prodat)Poèet Akcií: ";
+			cout << "Poèet Akcií(Prodat): ";
 			cin >> Stocks;
 
 			PrintSpace(2);
@@ -235,17 +235,18 @@ int main() {
 			{
 				tree->ReturnStocks(Name, Stocks);
 
+				unsigned long long int Months = list->GetDuration(Name);
 				unsigned long long int Money = list->Remove(Name, Stocks);
 
-				if (Money > 100000)
+				if (Money > 100000 && Months <36)
 				{
-					user->SetMoney(user->GetMoney() + Money / 100 * 79);
-					cout << "Obchod úspìšnì uzavøen s daní!" << endl << "\t\tNa úèet: " << Money;
+					user->SetMoney(user->GetMoney() + Money / 100 * 85);
+					cout << "Obchod úspìšnì uzavøen s daní!" << endl << "\t\tNa úèet: " << Money << "Kè";
 				}
 				else
 				{
 					user->SetMoney(user->GetMoney() + Money);
-					cout << "Obchod úspìšnì uzavøen bez danì!" << endl << "\t\tNa úèet: " << Money;
+					cout << "Obchod úspìšnì uzavøen bez danì!" << endl << "\t\tNa úèet: " << Money << "Kè";
 				}				
 			}
 			else

@@ -1,0 +1,6 @@
+Alphabet:Google:Calico:Verily;
+Google:Youtube:Google.org:Waymo;
+Youtube:FameBit:BandPage;
+Verily:Lift_Labs:Onduo_LLC;
+Seznam.cz:Expres_FM:Classic_Praha;
+Mozilla:Mozilla_Corporation;

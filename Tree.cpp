@@ -142,7 +142,7 @@ void Tree::Print(TreeItem* root) {
 
 		(root == this->Root)
 			? cout << "Hlavní spoleènosti" << endl << "\t\t\t"
-			: cout << root->Name << " owns:" << endl << "\t\t\t";
+			: cout << root->Name << " vlastní:" << endl << "\t\t\t";
 	}
 
 
@@ -308,6 +308,7 @@ void Tree::Delete(vector<string>&Deleted,TreeItem*& root) {
 	if (root->PerStock<=0) {
 		root->Exist = false;
 		Deleted.push_back(root->Name);
+		DeleteUnder(root);
 		return;
 	}
 
@@ -321,6 +322,21 @@ void Tree::Delete(vector<string>&Deleted,TreeItem*& root) {
 	return;
 }
 
+void Tree::DeleteUnder(TreeItem*& root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	if (root->Leaves.empty()) {
+		return;
+	}
+
+	for (auto &Under : root->Leaves) {
+		DeleteUnder(Under);
+	}
+	return;
+
+}
 
 
 long long int Tree::GetPerStock(string Name) {

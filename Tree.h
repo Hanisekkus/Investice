@@ -61,7 +61,8 @@ private:
 	void ReturnStocks(string, unsigned long long int, TreeItem*);
 	void ChangeMonth(TreeItem*&);
 	void Delete(vector<string>&, TreeItem*&);
-	
+	void DeleteUnder(TreeItem*&);
+
 
 	long long int GetPerStock(string, TreeItem*);
 	void SetPerStock(string, long long int, TreeItem*);

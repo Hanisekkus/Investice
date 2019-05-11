@@ -159,7 +159,7 @@ void List::Print(ListItem* head, int Index) {
 		cout <<endl << "\t\t";
 		Index = 0;
 	}
-	cout << head->Name << " : " << head->Stocks * head->PerOneStock << "Kè (A:" << head->Stocks << ")" << "    ";
+	cout << head->Name << " : " << head->Stocks * head->PerOneStock << "Kè (A: " << head->Stocks << ")" << "    ";
 	
 	Print(head->Next, Index+=1);
 }
@@ -180,6 +180,8 @@ void List::ChangePerMonth(ListItem* &head,Tree* tree) {
 	{
 		Remove(head->Name,head);
 	}
+
+
 
 }
 

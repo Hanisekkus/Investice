@@ -87,15 +87,14 @@ void AfterMonth(unsigned long long int Months, List* list, Tree* tree,vector<str
 
 	for (unsigned long long int i = Months; i > 0; i--) {
 
-		CleanConsole(3);
+		CleanConsole(5);
 
 		tree->ChangeMonth();
-		list->ChangePerMonth(tree);
-
 		for (auto const &Name : tree->Delete()) {
 			if (std::find(NoLonger.begin(), NoLonger.end(), Name) == NoLonger.end())
 				NoLonger.push_back(Name);
 		}
+		list->ChangePerMonth(tree);
 
 		PrintCompanies(tree);
 		PrintNoLonger(NoLonger);
@@ -159,9 +158,9 @@ int main() {
 	PrintLetter('*', 90);
 	PrintEnter(1);
 
-	CleanConsole(5);
+	CleanConsole(10);
 	
-	Tree* tree = new Tree("Companies", Difficulty);
+	Tree* tree = new Tree("Spolecnosti", Difficulty);
 	List* list = new List();
 	int Option;
 	vector<string> NoLonger;
@@ -287,7 +286,7 @@ int main() {
 				cout << "Gratuluji k tak skvìlému výkonu " << user->GetName() << endl;
 
 				PrintLetter('/', 55);
-				CleanConsole(4);
+				CleanConsole(5);
 				Option = 4;
 				break;
 			}

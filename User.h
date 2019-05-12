@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -7,13 +8,17 @@ class User
 {
 private:
 	string Name;
-	unsigned long long int Money;
-public:
-	User(string, unsigned long long int);
+	
+	uint64_t Money;
 
-	unsigned long long int GetMoney();
+public:
+	User(string, uint64_t);
+
+
+	uint64_t GetMoney();
+	
 	string GetName();
 
-	void SetMoney(unsigned long long int);
+	void SetMoney(uint64_t);
 };
 

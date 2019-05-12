@@ -42,8 +42,9 @@ void CleanConsole(int Seconds) {
 
 void PrintCompanies(Tree* tree) {
 	PrintLetter('*', 90);
-	PrintEnter(2);
+	PrintEnter(1);
 	tree->Print();
+	PrintEnter(2);
 }
 
 void PrintInvestment(List* list) {
@@ -87,7 +88,7 @@ void AfterMonth(unsigned long long int Months, List* list, Tree* tree,vector<str
 
 	for (unsigned long long int i = Months; i > 0; i--) {
 
-		CleanConsole(0);
+		CleanConsole(5);
 
 		tree->ChangeMonth();
 		for (auto const &Name : tree->Delete()) {
@@ -118,7 +119,7 @@ int main() {
 	
 	string Jmeno, Prijmeni;
 	unsigned long long int Money;
-	int Difficulty;
+	uint16_t Difficulty;
 
 	PrintLetter('*', 90);
 	PrintEnter(2);

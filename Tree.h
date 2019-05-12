@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -6,60 +7,75 @@ using namespace std;
 
 class TreeItem {
 public:
-	string Name;
 	bool Exist;
 
-	unsigned long long int Stocks;
-	long long int PerStock;
+	string Name;
+
+	uint64_t Stocks;
+
+	int64_t PerStock;
+
 	vector<TreeItem*> Leaves;
 
-	TreeItem(string);
+
+	TreeItem(string Name);
+
 
 	void virtual ChangeMonth() = 0;
 };
 
+
 class TreeItemBad: public TreeItem {
 public:
-	int Change = 20;
+	int16_t Change = 20;
+
 
 	TreeItemBad(string Name) :TreeItem(Name) {};
+
 
 	void ChangeMonth();
 };
 
+
 class TreeItemNormal: public TreeItem {
 public:
-	int Change = 0;
+	int16_t Change = 0;
 
 	TreeItemNormal(string Name) :TreeItem(Name) {};
 
 	void ChangeMonth();
 };
 
+
 class TreeItemGreat : public TreeItem {
 public:
-	int Change = 20;
+	int16_t Change = 20;
 
 	TreeItemGreat(string Name) :TreeItem(Name) {};
 
 	void ChangeMonth();
 };
 
+
 class Tree
 {
 private:
 	TreeItem* Root;
-	int Difficulty;
+
+	uint16_t Difficulty;
+
+
+	void Fill();
+
+	TreeItem* GiveObjectOrNull(string Name, TreeItem* Root);
 	
-	bool InsertTo(string, string, TreeItem*);
-	void Print(TreeItem*);
-	bool LeavesExist(const TreeItem*);
-	bool DoesExist(string, TreeItem*);
-	void NoMoreExist(string, TreeItem*);
-	bool AvaibleStocks(string, unsigned long long int, TreeItem*);
-	void BuyStocks(string, unsigned long long int, TreeItem*);
-	void ReturnStocks(string, unsigned long long int, TreeItem*);
+	void Insert(string Name);
+	void InsertTo(string Name, string Where);
+	void Print(TreeItem* Root);
 	void ChangeMonth(TreeItem*&);
+
+
+	
 	void Delete(vector<string>&, TreeItem*&);
 	void DeleteUnder(TreeItem*&);
 
@@ -67,20 +83,25 @@ private:
 	long long int GetPerStock(string, TreeItem*);
 	void SetPerStock(string, long long int, TreeItem*);
 
-	void Fill();
-public:
-	Tree(string,int);
-	~Tree();
+	
 
-	void Insert(string);
-	bool InsertTo(string, string);
+public:
+	Tree(string Name, uint16_t Difficulty);
+	virtual ~Tree();
+
+
+	bool DoesExist(string Name);
+	bool AvaibleStocks(string Name, uint64_t Stocks);
+	
+	void NoMoreExist(string Name);
+	void BuyStocks(string Name, uint64_t Stocks);
+	void ReturnStocks(string, uint64_t Stocks);
+	
+
+	//Volají funkci z Private
 	void Print();
-	bool DoesExist(string);
-	void NoMoreExist(string);
-	bool AvaibleStocks(string, unsigned long long int);
-	void BuyStocks(string, unsigned long long int);
-	void ReturnStocks(string, unsigned long long int);
 	void ChangeMonth();
+	
 	vector<string> Delete();
 
 	long long int GetPerStock(string);

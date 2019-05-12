@@ -1,47 +1,16 @@
-#include <iostream>
-#include <fstream>
 #include "Tree.h"
+
+//Tree.h knihovny
+//#include <iostream>
+//#include <string>
+//#include <vector>
+#include <fstream>
+
 #define Input "Companies.txt" 
 
-void Tree::Fill() {
-	
-	string Company = "";
-	string Under = "";
-	char Letter;
-	bool Switch = false;
-	
-	ifstream Companies;
-	Companies.open(Input);
 
-	if (!Companies) {
-		cerr << "Unable to open file with Companies!" << endl;
-		return;
-	}
-
-	while (Companies >> Letter) {
-		switch (Letter) {
-		case ';': 
-		{
-			(!Switch && !DoesExist(Company)) ? Insert(Company) : (void)InsertTo(Under, Company);
-			Company = "";
-			Under = "";
-			Switch = false;
-			break;
-		}
-		case ':': 
-		{
-			(!Switch && !DoesExist(Company)) ? Insert(Company) : (void)InsertTo(Under, Company);
-			Under = "";
-			Switch = true;
-			break;
-		}
-		default:
-			(Switch) ? Under += Letter : Company += Letter;
-		}
-	}
-}
-
-Tree::Tree(string Name, int Difficulty)
+//Konstruktor tøídy Tree
+Tree::Tree(string Name, uint16_t Difficulty)
 {
 	this->Difficulty = Difficulty;
 
@@ -52,251 +21,43 @@ Tree::Tree(string Name, int Difficulty)
 	case 3: this->Root = new TreeItemBad(Name); break;
 	}
 
-	Fill();
+	this->Fill();
 }
 
-
+//Destruktor tøídy Tree
 Tree::~Tree()
 {
-	delete[] Root;
+	delete Root;
 }
 
-
-TreeItem::TreeItem(string Name) {
+//Konstruktor tøídy TreeItem
+//	Abstraktní tøída (pouze pro dìdièe)
+TreeItem::TreeItem(string Name)
+{
 	this->Name = Name;
 	this->Exist = true;
 	this->Stocks = rand() % 10000 + 1000;
 	this->PerStock = rand() % 100 + 1;
 }
 
-void TreeItemBad::ChangeMonth() {
+//Metoda pro nejtìžší obtížnosti
+void TreeItemBad::ChangeMonth()
+{
 	this->PerStock = this->PerStock + rand() % 50 - (25 + this->Change);
 }
 
-void TreeItemNormal::ChangeMonth() {
+//Metoda pro normální obtížnosti
+void TreeItemNormal::ChangeMonth()
+{
 	this->PerStock = this->PerStock + rand() % 50 - (15 + this->Change);
 }
 
-void TreeItemGreat::ChangeMonth() {
+//Metoda pro nejlehèí obtížnost
+void TreeItemGreat::ChangeMonth()
+{
 	this->PerStock = this->PerStock + rand() % (50 + this->Change) - 5;
 }
 
-
-
-void Tree::Insert(string Name){
-	if (Name == "")return;
-
-	switch (this->Difficulty)
-	{
-	case 1:	this->Root->Leaves.push_back(new TreeItemGreat(Name)); break;
-	case 2: this->Root->Leaves.push_back(new TreeItemNormal(Name)); break;
-	case 3: this->Root->Leaves.push_back(new TreeItemBad(Name)); break;
-	}
-	
-}
-
-bool Tree::InsertTo(string Name, string Where) {
-	if (Name == "")return false;
-	return InsertTo(Name, Where, this->Root);
-}
-
-bool Tree::InsertTo(string Name, string Where, TreeItem* root) {
-	if (root->Name == Where && root->Exist) {
-
-		switch (this->Difficulty)
-		{
-		case 1:	root->Leaves.push_back(new TreeItemGreat(Name)); break;
-		case 2: root->Leaves.push_back(new TreeItemNormal(Name)); break;
-		case 3: root->Leaves.push_back(new TreeItemBad(Name)); break;
-		}
-
-		return true;
-	}
-
-	if (root->Leaves.empty()) {
-		return false;
-	}
-
-	for (auto &company : root->Leaves) {
-		if (InsertTo(Name, Where, &*company)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-void Tree::Print() {
-	Print(this->Root);
-}
-
-void Tree::Print(TreeItem* root) {
-
-	if (root->Leaves.empty() || !root->Exist) {
-		return;
-	}
-
-	if (LeavesExist(root)) {
-
-		cout << "\t\t";
-
-		(root == this->Root)
-			? cout << "Hlavní spoleènosti" << endl << "\t\t\t"
-			: cout << root->Name << " vlastní:" << endl << "\t\t\t";
-	}
-
-
-	int Index = 0;
-
-	for (auto const &company : root->Leaves) {
-		if (company->Exist) {
-			if (Index)
-				cout << ", " << company->Name;
-			else
-				cout << company->Name;
-			cout << " (A: " << company->Stocks << ", C: " << company->PerStock << "Kè)";
-			Index++;
-		}
-	}
-	
-	cout << endl;
-
-	for (auto &company : root->Leaves) {
-		Print(company);
-	}
-}
-
-bool Tree::LeavesExist(const TreeItem* root) {
-	for (auto const &UnderCompany : root->Leaves) {
-		if (UnderCompany->Exist)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-bool Tree::DoesExist(string Name){
-	return DoesExist(Name, this->Root);
-}
-
-bool Tree::DoesExist(string Name, TreeItem* root) {
-	if (root->Name == Name && root->Exist) {
-		return true;
-	}
-
-	if (root->Leaves.empty()) {
-		return false;
-	}
-
-	for (auto &company : root->Leaves) {
-		if (DoesExist(Name,company)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-void Tree::NoMoreExist(string Name) {
-	NoMoreExist(Name, this->Root);
-}
-
-void Tree::NoMoreExist(string Name, TreeItem* root) {
-	if (root->Name == Name) {
-		root->Exist = false;
-		return;
-	}
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &company : root->Leaves) {
-		NoMoreExist(Name, company);
-	}
-}
-
-
-bool Tree::AvaibleStocks(string Name, unsigned long long int Stocks) {
-	return AvaibleStocks(Name, Stocks, this->Root);
-}
-
-bool Tree::AvaibleStocks(string Name, unsigned long long int Stocks,TreeItem* root) {
-	if (root->Name == Name && root->Exist && root->Stocks >= Stocks) {
-		return true;
-	}
-
-	if (root->Leaves.empty()) {
-		return false;
-	}
-
-	for (auto &company : root->Leaves) {
-		if (AvaibleStocks(Name, Stocks, company)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-void Tree::BuyStocks(string Name, unsigned long long int Stocks) {
-	BuyStocks(Name, Stocks, this->Root);
-}
-
-void Tree::BuyStocks(string Name, unsigned long long int Stocks, TreeItem* root) {
-	if (root->Name == Name && root->Exist) {
-		root->Stocks -= Stocks;
-		return;
-	}
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &company : root->Leaves) {
-		BuyStocks(Name, Stocks, company);
-	}
-}
-
-
-void Tree::ReturnStocks(string Name, unsigned long long int Stocks) {
-	ReturnStocks(Name, Stocks, this->Root);
-}
-
-void Tree::ReturnStocks(string Name, unsigned long long int Stocks, TreeItem* root) {
-	if (root->Name == Name && root->Exist) {
-		root->Stocks += Stocks;
-		return;
-	}
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &company : root->Leaves) {
-		ReturnStocks(Name, Stocks, company);
-	}
-}
-
-void Tree::ChangeMonth() {
-	ChangeMonth(this->Root);
-}
-
-void Tree::ChangeMonth(TreeItem* &root) {
-	if (root->Exist && root != this->Root) {
-		root->ChangeMonth();
-	}
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &company : root->Leaves) {
-		ChangeMonth(company);
-	}
-}
 
 vector<string> Tree::Delete() {
 	vector<string>Deleted;
@@ -395,3 +156,343 @@ bool Tree::NothingExist() {
 
 	return true;
 }
+
+
+
+//
+// Private
+//
+
+
+
+//Metoda tøída Tree
+//	Naplní strom koøeny a listím
+//	Probìhne pouze JEDNOU!
+void Tree::Fill()
+{
+	string Company;
+	string Under;
+
+	char Letter;
+
+	bool Switch = true;
+
+	ifstream Companies;
+	Companies.open(Input);
+
+
+	if (!Companies)
+	{
+		cerr << "Unable to open file with Companies!" << endl;
+		return;
+	}
+
+	while (Companies >> Letter)
+	{
+		switch (Letter)
+		{
+		case ';':
+		{
+			if (!(Switch && DoesExist(Company)))
+			{
+				(Switch) ? Insert(Company) : InsertTo(Under, Company);
+			}
+
+			Company = "";
+			Under = "";
+			Switch = true;
+
+			break;
+		}
+		case ':':
+		{
+			if (!(Switch && DoesExist(Company)))
+			{
+				(Switch) ? Insert(Company) : InsertTo(Under, Company);
+			}			
+
+			Under = "";
+			Switch = false;
+
+			break;
+		}
+		default:
+			(Switch) ? Company += Letter : Under += Letter;
+		}
+	}
+
+	Companies.close();
+}
+
+
+//Rekurzivní metoda tøídy Tree
+//	Vyhledá požadovaný objekt
+//		Vrátí objekt pokud existuje
+//		Vrátí nullptr pokud neexistuje
+TreeItem* Tree::GiveObjectOrNull(string Name, TreeItem* Root)
+{
+	if (Root == nullptr)
+	{
+		return nullptr;
+	}
+
+	if (Root->Name == Name)
+	{
+		return Root;
+	}
+
+
+	for (auto const &Company : Root->Leaves)
+	{
+		if (GiveObjectOrNull(Name, Company) != nullptr)
+		{
+			return GiveObjectOrNull(Name, Company);
+		}
+	}
+
+	return nullptr;
+}
+
+
+//Metoda tøídy Tree
+//	Do koøene vloží nový objekt
+void Tree::Insert(string Name)
+{
+	switch (this->Difficulty)
+	{
+	case 1:	this->Root->Leaves.push_back(new TreeItemGreat(Name)); break;
+	case 2: this->Root->Leaves.push_back(new TreeItemNormal(Name)); break;
+	case 3: this->Root->Leaves.push_back(new TreeItemBad(Name)); break;
+	}
+}
+
+
+//Metoda tøídy Tree
+//	Do hledaného objektu vytvoøí nový objekt
+void Tree::InsertTo(string Name, string Where)
+{
+	TreeItem* root = GiveObjectOrNull(Where, this->Root);
+
+	if (root == nullptr)
+	{
+		return;
+	}
+
+	switch (this->Difficulty)
+	{
+	case 1:	root->Leaves.push_back(new TreeItemGreat(Name)); break;
+	case 2: root->Leaves.push_back(new TreeItemNormal(Name)); break;
+	case 3: root->Leaves.push_back(new TreeItemBad(Name)); break;
+	}
+
+
+	root = nullptr;
+}
+
+
+//PUBLIC
+//Metoda tøídy Tree
+//	Zavolá privátní metodu která vypíše celý strom
+void Tree::Print()
+{
+	Print(this->Root);
+}
+
+//Metoda tøídy Tree
+//	Vypíše data ze stromu podle struktury
+void Tree::Print(TreeItem* Root)
+{
+	uint16_t Index = 0;
+
+
+	if (Root->Leaves.empty() || !Root->Exist)
+	{
+		return;
+	}
+
+	for (auto const &UnderCompany : Root->Leaves)
+	{
+		if(UnderCompany->Exist)
+		{
+			(Root == this->Root)
+				? cout << endl << "\t\t" << "Hlavní spoleènosti" << endl << "\t\t\t"
+				: cout << endl << "\t\t" << Root->Name << " vlastní:" << endl << "\t\t\t";
+
+			break;
+		}
+	}
+
+	for (auto const &company : Root->Leaves)
+	{
+		if (company->Exist)
+		{
+			if (Index)
+			{
+				cout << ", " << company->Name;
+			}
+				
+			else
+			{
+				cout << company->Name;
+			}
+				
+			cout << " (A: " << company->Stocks << ", C: " << company->PerStock << "Kè)";
+			Index++;
+		}
+	}
+
+	for (auto const &company : Root->Leaves) {
+		Print(company);
+	}
+}
+
+
+//PUBLIC
+//Metoda tøídy Tree
+//	Zavolá privátní metodu která zmìní hodnoty ve stromì
+void Tree::ChangeMonth()
+{
+	ChangeMonth(this->Root);
+}
+
+//Metoda tøídy Tree
+//	Mìní pokaždém zavolání hodnoty ve stromì
+void Tree::ChangeMonth(TreeItem* &root)
+{
+	if (root->Exist && root != this->Root)
+	{
+		root->ChangeMonth();
+	}
+
+	if (root->Leaves.empty())
+	{
+		return;
+	}
+
+	for (auto &company : root->Leaves)
+	{
+		ChangeMonth(company);
+	}
+}
+
+
+
+//
+// Public
+//
+
+
+
+//Metoda tøídy Tree
+//	Vrací True pokud objekt existuje
+//	Vrací False pokud objekt neexistuje
+bool Tree::DoesExist(string Name)
+{
+	TreeItem* root = GiveObjectOrNull(Name, this->Root);
+
+	if (root == nullptr)
+	{
+		return false;
+	}
+
+	bool DoesExist = root->Exist;
+
+
+	root = nullptr;
+
+
+	if (DoesExist)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+//Metoda tøídy Tree
+//	Zjistí zda objekt má dost akcií na prodání
+bool Tree::AvaibleStocks(string Name, uint64_t Stocks)
+{
+	bool GoodEnough;
+
+
+	TreeItem* root = GiveObjectOrNull(Name, this->Root);
+
+	if (root == nullptr)
+	{
+		return false;
+	}
+
+	(root->Stocks >= Stocks && root->Exist) ? GoodEnough = true : GoodEnough = false;
+
+
+	root = nullptr;
+
+
+	return GoodEnough;
+}
+
+
+//Metoda tøídy Tree
+//	Pøenastaví hodnotu objektu Exist na false
+void Tree::NoMoreExist(string Name)
+{
+	TreeItem* root = GiveObjectOrNull(Name, this->Root);
+
+	if (root == nullptr)
+	{
+		return;
+	}
+
+	if (root->Exist)
+	{
+		root->Exist = false;
+	}
+
+
+	root = nullptr;
+}
+
+
+//Metoda tøídy Tree
+//	Pøenastaví hodnotu objektu Stocks o parametr
+void Tree::BuyStocks(string Name, uint64_t Stocks)
+{
+	TreeItem* root = GiveObjectOrNull(Name, this->Root);
+
+	if (root == nullptr)
+	{
+		return;
+	}
+
+	if (root->Stocks >= Stocks && root->Exist)
+	{
+		root->Stocks -= Stocks;
+	}
+
+
+	root = nullptr;
+}
+
+
+//Metoda tøídy Tree
+//	Pøenastaví hodnotu objektu Stocks o parametr
+void Tree::ReturnStocks(string Name, uint64_t Stocks)
+{
+	TreeItem* root = GiveObjectOrNull(Name, this->Root);
+
+	if (root == nullptr)
+	{
+		return;
+	}
+
+	if (root->Exist)
+	{
+		root->Stocks += Stocks;
+	}
+
+
+	root = nullptr;
+}
+

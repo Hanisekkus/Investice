@@ -327,6 +327,8 @@ void Tree::DeleteUnder(TreeItem*& root) {
 		return;
 	}
 
+	root->Exist = false;
+
 	if (root->Leaves.empty()) {
 		return;
 	}

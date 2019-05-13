@@ -91,10 +91,10 @@ void AfterMonth(unsigned long long int Months, List* list, Tree* tree,vector<str
 		CleanConsole(5);
 
 		tree->ChangeMonth();
-		for (auto const &Name : tree->Delete()) {
-			if (std::find(NoLonger.begin(), NoLonger.end(), Name) == NoLonger.end())
-				NoLonger.push_back(Name);
-		}
+		tree->Delete();
+
+		NoLonger = tree->GetDeletedCompanies();
+
 		list->ChangePerMonth(tree);
 
 		PrintCompanies(tree);

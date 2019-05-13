@@ -30,6 +30,7 @@ Tree::~Tree()
 	delete Root;
 }
 
+
 //Konstruktor tøídy TreeItem
 //	Abstraktní tøída (pouze pro dìdièe)
 TreeItem::TreeItem(string Name)
@@ -56,105 +57,6 @@ void TreeItemNormal::ChangeMonth()
 void TreeItemGreat::ChangeMonth()
 {
 	this->PerStock = this->PerStock + rand() % (50 + this->Change) - 5;
-}
-
-
-vector<string> Tree::Delete() {
-	vector<string>Deleted;
-	Delete(Deleted, this->Root);
-	return Deleted;
-}
-
-void Tree::Delete(vector<string>&Deleted,TreeItem*& root) {
-	if (root->PerStock<=0) {
-		root->Exist = false;
-		Deleted.push_back(root->Name);
-		DeleteUnder(root);
-		return;
-	}
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &company : root->Leaves) {
-		Delete(Deleted,company);
-	}
-	return;
-}
-
-void Tree::DeleteUnder(TreeItem*& root) {
-	if (root == nullptr) {
-		return;
-	}
-
-	root->Exist = false;
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &Under : root->Leaves) {
-		DeleteUnder(Under);
-	}
-	return;
-
-}
-
-
-long long int Tree::GetPerStock(string Name) {
-	return GetPerStock(Name, this->Root);
-}
-
-long long int Tree::GetPerStock(string Name, TreeItem* root) {
-	if (root->Name == Name && root->Exist) {
-		return root->PerStock;
-	}
-
-	if (root->Leaves.empty()) {
-		return 0;
-	}
-
-	for (auto &company : root->Leaves) {
-		long long int PerStock = GetPerStock(Name, company);
-		if (PerStock)
-			return PerStock;
-	}
-	return 0;
-}
-
-void Tree::SetPerStock(string Name, long long int PerStock) {
-	return SetPerStock(Name, PerStock, this->Root);
-}
-
-void Tree::SetPerStock(string Name, long long int PerStock, TreeItem* root) {
-	if (root->Name == Name && root->Exist) {
-		root->PerStock = PerStock;
-		return;
-	}
-
-	if (root->Leaves.empty()) {
-		return;
-	}
-
-	for (auto &company : root->Leaves) {
-		SetPerStock(Name, PerStock, company);
-	}
-	return;
-}
-
-bool Tree::NothingExist() {
-	if (this->Root->Leaves.empty()) {
-		return true;
-	}
-
-	for (auto const &company : this->Root->Leaves) {
-		if (company->Exist) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 
@@ -341,7 +243,8 @@ void Tree::Print(TreeItem* Root)
 		}
 	}
 
-	for (auto const &company : Root->Leaves) {
+	for (auto const &company : Root->Leaves)
+	{
 		Print(company);
 	}
 }
@@ -357,28 +260,63 @@ void Tree::ChangeMonth()
 
 //Metoda tøídy Tree
 //	Mìní pokaždém zavolání hodnoty ve stromì
-void Tree::ChangeMonth(TreeItem* &root)
+void Tree::ChangeMonth(TreeItem* Root)
 {
-	if (root->Exist && root != this->Root)
+	if (Root->Exist && Root != this->Root)
 	{
-		root->ChangeMonth();
+		Root->ChangeMonth();
 	}
 
-	if (root->Leaves.empty())
+	if (Root->Leaves.empty())
 	{
 		return;
 	}
 
-	for (auto &company : root->Leaves)
+	for (auto &company : Root->Leaves)
 	{
 		ChangeMonth(company);
 	}
 }
 
 
+//PUBLIC
+//Metoda tøídy Tree
+//	Vyvolá metodu s potøebnými parametry
+void Tree::Delete()
+{
+	Delete(false, this->Root);
+}
+
+//Metoda tøídy Tree
+//	Mìní pokaždém zavolání hodnoty ve stromì
+void Tree::Delete(bool UnderNotExist, TreeItem* Root)
+{
+	if (Root->PerStock <= 0 || UnderNotExist)
+	{
+		Root->Exist = false;
+		UnderNotExist = true;
+		this->DeletedCompanies.push_back(Root->Name);
+	}
+
+	if (Root->Leaves.empty())
+	{
+		return;
+	}
+
+	for (auto &Company : Root->Leaves)
+	{
+		if(Company->Exist)
+		{
+			Delete(UnderNotExist, Company);
+		}
+	}
+	return;
+}
+
+
 
 //
-// Public
+//			 Public
 //
 
 
@@ -407,6 +345,28 @@ bool Tree::DoesExist(string Name)
 	}
 
 	return false;
+}
+
+
+//Metoda tøídy Tree
+//	Vrací True pokud všechny spoleènosti zkrachovaly
+//	Vrací False pokud ještì nìjaká spoleènost žije
+bool Tree::NothingExist()
+{
+	if (this->Root->Leaves.empty())
+	{
+		return true;
+	}
+
+	for (auto const &company : this->Root->Leaves)
+	{
+		if (company->Exist)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 
@@ -496,3 +456,34 @@ void Tree::ReturnStocks(string Name, uint64_t Stocks)
 	root = nullptr;
 }
 
+
+//Metoda tøídy Tree
+//	Vrátí cenu za akcii dané spoleènosti
+int64_t Tree::GetPerStock(string Name)
+{
+	TreeItem* Root = GiveObjectOrNull(Name, this->Root);
+
+	int64_t PerStock;
+
+
+	if (Root == nullptr)
+	{
+		return 0;
+	}
+
+	(Root->Exist) ? PerStock = Root->PerStock : PerStock = 0;
+
+
+	Root = nullptr;
+
+
+	return PerStock;
+}
+
+
+//Metoda tøídy Tree
+//	Vrátí vector se zkrachovalími spoleènostmi
+vector<string> Tree::GetDeletedCompanies()
+{
+	return this->DeletedCompanies;
+}

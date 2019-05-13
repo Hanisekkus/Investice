@@ -36,7 +36,6 @@ public:
 	void ChangeMonth();
 };
 
-
 class TreeItemNormal: public TreeItem {
 public:
 	int16_t Change = 0;
@@ -45,7 +44,6 @@ public:
 
 	void ChangeMonth();
 };
-
 
 class TreeItemGreat : public TreeItem {
 public:
@@ -62,27 +60,19 @@ class Tree
 private:
 	TreeItem* Root;
 
+	vector<string> DeletedCompanies;
+
 	uint16_t Difficulty;
 
 
-	void Fill();
-
 	TreeItem* GiveObjectOrNull(string Name, TreeItem* Root);
-	
+
+	void Fill();
 	void Insert(string Name);
 	void InsertTo(string Name, string Where);
 	void Print(TreeItem* Root);
-	void ChangeMonth(TreeItem*&);
-
-
-	
-	void Delete(vector<string>&, TreeItem*&);
-	void DeleteUnder(TreeItem*&);
-
-
-	long long int GetPerStock(string, TreeItem*);
-	void SetPerStock(string, long long int, TreeItem*);
-
+	void ChangeMonth(TreeItem* Root);
+	void Delete(bool UnderNotExist, TreeItem* Root);
 	
 
 public:
@@ -91,21 +81,19 @@ public:
 
 
 	bool DoesExist(string Name);
+	bool NothingExist();
 	bool AvaibleStocks(string Name, uint64_t Stocks);
 	
 	void NoMoreExist(string Name);
 	void BuyStocks(string Name, uint64_t Stocks);
 	void ReturnStocks(string, uint64_t Stocks);
-	
 
-	//Volají funkci z Private
+	int64_t GetPerStock(string Name);
+
+	vector<string> GetDeletedCompanies();
+
+	//Volají polymorfní funkci z Private
 	void Print();
 	void ChangeMonth();
-	
-	vector<string> Delete();
-
-	long long int GetPerStock(string);
-	void SetPerStock(string,long long int);
-	bool NothingExist();
+	void Delete();
 };
-

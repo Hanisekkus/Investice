@@ -60,40 +60,45 @@ class Tree
 private:
 	TreeItem* Root;
 
-	vector<string> DeletedCompanies;
-
 	uint16_t Difficulty;
 
+	vector<string> Companies;
+
+
+	bool DoesExist(string Name);
+
+	vector<string> GetExistCompanies();
+	vector<string> GetNotExistCompanies();
 
 	TreeItem* GiveObjectOrNull(string Name, TreeItem* Root);
 
 	void Fill();
 	void Insert(string Name);
 	void InsertTo(string Name, string Where);
+	void Delete(bool UnderNotExist, TreeItem* Root);
+
+	//Volané z Public
 	void Print(TreeItem* Root);
 	void ChangeMonth(TreeItem* Root);
-	void Delete(bool UnderNotExist, TreeItem* Root);
-	
+
 
 public:
 	Tree(string Name, uint16_t Difficulty);
 	virtual ~Tree();
 
 
-	bool DoesExist(string Name);
-	bool NothingExist();
-	bool AvaibleStocks(string Name, uint64_t Stocks);
-	
-	void NoMoreExist(string Name);
-	void BuyStocks(string Name, uint64_t Stocks);
-	void ReturnStocks(string, uint64_t Stocks);
+	uint64_t GetStocks(string Name);
 
 	int64_t GetPerStock(string Name);
 
-	vector<string> GetDeletedCompanies();
+	
+	void BuyStocks(string Name, uint64_t Stocks);
+	void ReturnStocks(string Name, uint64_t Stocks);
+
+	vector<string> GetCompanies(uint16_t Options);
+
 
 	//Volají polymorfní funkci z Private
 	void Print();
 	void ChangeMonth();
-	void Delete();
 };

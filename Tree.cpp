@@ -160,6 +160,9 @@ TreeItem* Tree::GiveObjectOrNull(string Name, TreeItem* Root)
 //	Do koøene vloží nový objekt
 void Tree::Insert(string Name)
 {
+	this->Companies.push_back(Name);
+
+
 	switch (this->Difficulty)
 	{
 	case 1:	this->Root->Leaves.push_back(new TreeItemGreat(Name)); break;
@@ -179,6 +182,10 @@ void Tree::InsertTo(string Name, string Where)
 	{
 		return;
 	}
+
+
+	this->Companies.push_back(Name);
+
 
 	switch (this->Difficulty)
 	{
@@ -256,6 +263,7 @@ void Tree::Print(TreeItem* Root)
 void Tree::ChangeMonth()
 {
 	ChangeMonth(this->Root);
+	Delete(false, this->Root);
 }
 
 //Metoda tøídy Tree
@@ -279,14 +287,6 @@ void Tree::ChangeMonth(TreeItem* Root)
 }
 
 
-//PUBLIC
-//Metoda tøídy Tree
-//	Vyvolá metodu s potøebnými parametry
-void Tree::Delete()
-{
-	Delete(false, this->Root);
-}
-
 //Metoda tøídy Tree
 //	Mìní pokaždém zavolání hodnoty ve stromì
 void Tree::Delete(bool UnderNotExist, TreeItem* Root)
@@ -295,7 +295,6 @@ void Tree::Delete(bool UnderNotExist, TreeItem* Root)
 	{
 		Root->Exist = false;
 		UnderNotExist = true;
-		this->DeletedCompanies.push_back(Root->Name);
 	}
 
 	if (Root->Leaves.empty())
@@ -345,73 +344,6 @@ bool Tree::DoesExist(string Name)
 	}
 
 	return false;
-}
-
-
-//Metoda tøídy Tree
-//	Vrací True pokud všechny spoleènosti zkrachovaly
-//	Vrací False pokud ještì nìjaká spoleènost žije
-bool Tree::NothingExist()
-{
-	if (this->Root->Leaves.empty())
-	{
-		return true;
-	}
-
-	for (auto const &company : this->Root->Leaves)
-	{
-		if (company->Exist)
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-
-//Metoda tøídy Tree
-//	Zjistí zda objekt má dost akcií na prodání
-bool Tree::AvaibleStocks(string Name, uint64_t Stocks)
-{
-	bool GoodEnough;
-
-
-	TreeItem* root = GiveObjectOrNull(Name, this->Root);
-
-	if (root == nullptr)
-	{
-		return false;
-	}
-
-	(root->Stocks >= Stocks && root->Exist) ? GoodEnough = true : GoodEnough = false;
-
-
-	root = nullptr;
-
-
-	return GoodEnough;
-}
-
-
-//Metoda tøídy Tree
-//	Pøenastaví hodnotu objektu Exist na false
-void Tree::NoMoreExist(string Name)
-{
-	TreeItem* root = GiveObjectOrNull(Name, this->Root);
-
-	if (root == nullptr)
-	{
-		return;
-	}
-
-	if (root->Exist)
-	{
-		root->Exist = false;
-	}
-
-
-	root = nullptr;
 }
 
 
@@ -481,9 +413,80 @@ int64_t Tree::GetPerStock(string Name)
 }
 
 
+//PUBLIC
 //Metoda tøídy Tree
 //	Vrátí vector se zkrachovalími spoleènostmi
-vector<string> Tree::GetDeletedCompanies()
+vector<string> Tree::GetCompanies(uint16_t Option)
 {
-	return this->DeletedCompanies;
+	vector<string> Result;
+
+
+	switch (Option)
+	{
+	case 0:
+	{
+		return this->Companies;
+	}
+	case 1:
+	{
+		return this->GetExistCompanies();
+	}
+	case 2:
+	{
+		return this->GetNotExistCompanies();
+	}
+	default:
+		return Result;
+	}
+}
+
+//PRIVATE
+//	Vrátí vector s existujicími spoleènostmi
+vector<string> Tree::GetExistCompanies()
+{
+	vector<string> ExistCompanies;
+
+
+	for(auto&& const Index : Companies)
+	{
+		if(DoesExist(Index))
+		{
+			ExistCompanies.push_back(Index);
+		}
+	}
+
+	return ExistCompanies;
+}
+
+//PRIVATE
+//	Vrátí vector s neexistujicími spoleènostmi
+vector<string> Tree::GetNotExistCompanies()
+{
+	vector<string> NotExistCompanies;
+
+
+	for (auto&& const Index : Companies)
+	{
+		if (!DoesExist(Index))
+		{
+			NotExistCompanies.push_back(Index);
+		}
+	}
+
+	return NotExistCompanies;
+}
+
+
+//PUBLIC
+//	Vrátí poèet akcií spoleènosti
+uint64_t Tree::GetStocks(string Name)
+{
+	TreeItem* Root = GiveObjectOrNull(Name, this->Root);
+
+	if (Root == nullptr || !Root->Exist)
+	{
+		return 0;
+	}
+
+	return Root->Stocks;
 }

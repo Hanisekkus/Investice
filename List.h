@@ -5,18 +5,22 @@
 
 using namespace std;
 
+
+
 class ListItem {
 public:
 	string Name;
-	unsigned long long int Stocks;
-	long long int PerOneStock;
-	unsigned long long int Months;
+
+	uint64_t Stocks;
+	uint64_t Months;
+
+	int64_t PerOneStock;
 
 	ListItem* Next;
 	ListItem* Previous;
 
 
-	ListItem(string, unsigned long long int, Tree*);
+	ListItem(string Name, uint64_t Stocks, Tree* Item);
 };
 
 
@@ -25,35 +29,34 @@ class List
 private:
 	ListItem* Head;
 	ListItem* Tail;
-	unsigned int Count;
 
-	unsigned long long int GetStocks(string, ListItem*);
+	uint64_t Count;
 
-	unsigned long long int Remove(string, ListItem*);
-	unsigned long long int Remove(string, unsigned long long int, ListItem*);
-	void Insert(string, unsigned long long int, ListItem*, Tree*);
-	void InsertTo(string,unsigned long long int, ListItem*);
-	void Print(ListItem*,int);
-	void ChangePerMonth(ListItem*&,Tree*);
-	bool DoesExist(string, ListItem*);
-	unsigned long long int GetDuration(string,const ListItem*);
 
-	vector<string> Delete(vector<string>,ListItem*);
+	void Insert(string Name, uint64_t Stocks, ListItem* item, Tree* tree);
+	void Print(ListItem* list, uint16_t Index);
+	void ChangePerMonth(ListItem* list, Tree* tree);
+	void RemoveByName(string Name);
+
+	vector<string> Delete(vector<string> Deleted, ListItem* item);
+
+	ListItem* GiveObjectOrNull(string Name, ListItem* Root);
+
 public:
 	List();
 	~List();
 
-	unsigned int GetCount();
-	unsigned long long int GetStocks(string);
+	uint64_t GetCount();
+	uint64_t GetStocks(string Name);
+	uint64_t GetDuration(string Name);
+	uint64_t Remove(string Name, uint64_t Stocks);
 
-	unsigned long long int Remove(string);
-	unsigned long long int Remove(string, unsigned long long int);
-	void Insert(string, unsigned long long int, Tree*);
-	void InsertTo(string, unsigned long long int);
+	void Insert(string Name, uint64_t Stocks, Tree* tree);
+	void InsertTo(string Name, uint64_t Stocks);
+
 	void Print();
-	void ChangePerMonth(Tree*);
-	bool DoesExist(string);
-	unsigned long long int GetDuration(string);
+	void ChangePerMonth(Tree* tree);
+	bool DoesExist(string Name);
 
 	vector<string> Delete();
 };

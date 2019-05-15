@@ -1,7 +1,8 @@
-#include <iostream>
-#include <string>
+//Tree.h knihovny
+//	#include <iostream>
+//	#include <string>
+//	#include <vector>
 #include <time.h>
-#include <vector>
 #include <locale.h>  
 #include <thread>
 #include <chrono>
@@ -12,234 +13,265 @@
 #include "List.h"
 #include "Tree.h"
 
-using namespace std;
+//Tree.h namespace
+//using namespace std;
 
 
-void PrintSpace(int Count) {
-	for (int i = 0; i < Count; i++) {
-		cout << "\t";
-	}
-}
 
-void PrintLetter(char Letter, int Count) {
-	PrintSpace(2);
-	for (int i = 0; i < Count; i++) {
+void PrintLetter(char Letter, uint16_t Count)
+{
+	cout << "\t\t";
+	for (uint16_t i = 0; i < Count; i++) {
 		cout << Letter;
 	}
 }
 
-void PrintEnter(int Count) {
-	for (int i = 0; i < Count; i++) {
-		cout << endl;
-	}
-}
-
-void CleanConsole(int Seconds) {
+void CleanConsole(int Seconds)
+{
 	this_thread::sleep_for(chrono::seconds(Seconds));
+
 	system("cls");
 	//system("clear"); Linux
 }
 
-void PrintCompanies(Tree* tree) {
+void PrintCompanies(Tree* tree)
+{
 	PrintLetter('*', 90);
-	PrintEnter(1);
+	
+	cout << endl;
+
 	tree->Print();
-	PrintEnter(2);
+	
+	cout << endl << endl;
 }
 
-void PrintInvestment(List* list) {
+void PrintInvestment(List* list)
+{
 	if (list->GetCount())
 	{
-		PrintEnter(1);
 		list->Print();
-		PrintEnter(1);
 	}
 
 	PrintLetter('*', 90);
-	PrintEnter(1);
+
+	cout << endl;
 }
 
-void PrintUser(User* user) {
-	PrintSpace(2);
-	cout << user->GetName() << " (peníze): " << user->GetMoney() << " Kè" << endl;
+void PrintUser(User* user)
+{
+	cout <<"\t\t"<< user->GetName() << " (peníze): " << user->GetMoney() << " Kè" << endl;
 }
 
-void PrintNoLonger(vector<string>NoLonger) {
-	if (!NoLonger.empty()) {
-		int Index = 0;
-		cout << endl;
-		PrintSpace(2);
-		cout << "Srdeènì vzpomínáme: ";
+void PrintNotExistCompanies(Tree* tree)
+{
+	vector<string> NotExistCompanies = tree->GetCompanies(2);
 
-		for (auto const&Name : NoLonger) {
-			if (Index == 6) {
-				cout << endl;
-				PrintSpace(2);
-				Index = 0;
-			}			
-			cout << Name << " ";
-			Index++;
-		}
-		PrintEnter(1);
+
+	if(NotExistCompanies.size() == 0)
+	{
+		return;
 	}
+
+	
+	cout << endl << "\t\tSrdeènì vzpomínáme: ";
+	
+	uint16_t Index = 0;
+	for (auto && const Name : NotExistCompanies) {
+		if (Index == 6) {
+			cout << endl << "\t\t";
+			Index = 0;
+		}			
+		cout << Name << " ";
+
+		Index++;
+	}
+
+	cout << endl;
 }
 
-void AfterMonth(unsigned long long int Months, List* list, Tree* tree,vector<string>&NoLonger) {
 
-	for (unsigned long long int i = Months; i > 0; i--) {
+bool BuyInvestment(Tree* tree, User* user, List* list, string Name, uint64_t Stocks)
+{
+	uint64_t CompanyStocks = tree->GetStocks(Name); 
+	uint64_t UserMoney = user->GetMoney();
 
+	int64_t CompanyPerStock = tree->GetPerStock(Name);
+
+
+	if (CompanyStocks < Stocks || UserMoney < Stocks * CompanyPerStock)
+	{
+		return false;
+	}
+
+	tree->BuyStocks(Name, Stocks);
+	(list->DoesExist(Name)) ? list->InsertTo(Name, Stocks) : list->Insert(Name, Stocks, tree);
+	user->SetMoney(UserMoney - Stocks * CompanyPerStock);
+	
+	return true;
+	
+}
+
+
+void Print(Tree* tree, List* list, User* user) {
+	//Vypíše všechny spoleènosti
+	PrintCompanies(tree);
+	//Vypíše všechny zkrachovalé spoleènosti
+	PrintNotExistCompanies(tree);
+	//Vypíše seznam investic
+	PrintInvestment(list);
+	//Vypíše data uživatele
+	PrintUser(user);
+}
+
+
+void AfterMonth(uint64_t Months, List* list, Tree* tree, User* user)
+{
+	for (uint64_t i = Months; i > 0; i--)
+	{
 		CleanConsole(5);
 
 		tree->ChangeMonth();
-		tree->Delete();
-
-		NoLonger = tree->GetDeletedCompanies();
-
 		list->ChangePerMonth(tree);
 
-		PrintCompanies(tree);
-		PrintNoLonger(NoLonger);
-		PrintInvestment(list);
+		Print(tree, list, user);
 
-		PrintSpace(2);
-		cout << "Zbývá mìsícù: " << i-1;
+		cout << "\t\tZbývá mìsícù: " << i - 1;
 
-		if (tree->NothingExist()) {
+		if (tree->GetCompanies(1).size() == 0)
+		{
 			return;
 		}
 	}
-
 }
 
 
 
-int main() {
+int main()
+{
 	setlocale(LC_ALL, "");
 	srand((int)time(NULL));
 	
-	string Jmeno, Prijmeni;
-	unsigned long long int Money;
+	string Jmeno;
+	string Prijmeni;
+
+	uint64_t Money;
+
 	uint16_t Difficulty;
+	uint16_t Option;
+
+	User* user;
+
+	Tree* tree;
+
+	List* list;
+
 
 	PrintLetter('*', 90);
-	PrintEnter(2);
 
-	PrintSpace(2);
-	cout << "Jméno: ";
+	cout << endl << endl << "\t\tJméno: ";
 	cin >> Jmeno >> Prijmeni;
 
-	PrintSpace(2);
-	cout << "Penìz na úètu: ";
+	cout << "\t\tPenìz na úètu: ";
 	cin >> Money;
 
-	User* user = new User(Jmeno +' '+ Prijmeni, Money);
+	user = new User(Jmeno +' '+ Prijmeni, Money);
 
-	PrintSpace(2);
-	cout << "Obtížnost[1-3]: ";
+	cout << "\t\tObtížnost[1-3]: ";
 	cin >> Difficulty;
-	if (Difficulty <= 0 || Difficulty > 3) Difficulty = 2;
 
-	PrintEnter(2);
-	PrintSpace(2);
-	cout << "Popis:";
-	PrintEnter(2);
-	PrintSpace(2);
-	cout << "Úèelem tohoto programu je simulace Investic." << endl;
-	PrintSpace(2);
-	cout << "A vy v této simulaci hrajete velkou roli a to Investora" << endl;
-	PrintSpace(2);
-	cout << "který musí investovat peníze do rùzných spoleèností aby si vydìlal na život.";
-	PrintEnter(3);
-	PrintSpace(2);
-	cout << "Autor:";
-	PrintEnter(2);
-	PrintSpace(2);
-	cout << "Jan Kusák, Login::Kus0054";
-	PrintEnter(3);
+
+	if (Difficulty <= 0 || Difficulty > 3)
+	{
+		Difficulty = 2;
+	}
+
+
+	cout << endl << endl << "\t\tPopis:";
+	cout << endl << endl << "\t\tÚèelem tohoto programu je simulace Investic." << endl;
+	cout << "\t\tA vy v této simulaci hrajete velkou roli a to Investora" << endl;
+	cout << "\t\tkterý musí investovat peníze do rùzných spoleèností aby si vydìlal na život.";
+	cout << endl << endl << endl << "\t\tAutor:";
+	cout << endl << endl << "\t\tJan Kusák, Login::Kus0054";
+	cout << endl << endl << endl;
 	PrintLetter('*', 90);
-	PrintEnter(1);
+
+	cout << endl;
+
 
 	CleanConsole(10);
 	
-	Tree* tree = new Tree("Spolecnosti", Difficulty);
-	List* list = new List();
-	int Option;
-	vector<string> NoLonger;
-
+	tree = new Tree("Spolecnosti", Difficulty);
+	list = new List();
+	
 	do {
-		PrintCompanies(tree);
-		PrintNoLonger(NoLonger);
-		PrintInvestment(list);
-		PrintUser(user);
+		Print(tree,list,user);
 
-		PrintSpace(2);
-		cout << "(1) Investovat    " << "(2) Prodat    " <<"(3) Poposkoèit    " <<"(4) Ukonèit" << endl;
-		PrintSpace(2);
-		cout << "Volba: ";
+		cout << "\t\t(1) Investovat    " << "(2) Prodat    " <<"(3) Poposkoèit    " <<"(4) Ukonèit" << endl;
+		cout << "\t\tVolba: ";
 		cin >> Option;
 
 
 		switch (Option)
 		{
-		case 1: {
+		case 1: 
+		{
 			string Name;
-			unsigned long long int Stocks;
+
+			uint64_t Stocks;
+
 
 			CleanConsole(0);
 
-			PrintCompanies(tree);
-			PrintNoLonger(NoLonger);
-			PrintInvestment(list);
-			PrintUser(user);
+			Print(tree,list,user);
 
-			PrintSpace(2);
-			cout << "Název spoleènosti: ";
+			cout << "\t\tNázev spoleènosti: ";
 			cin >> Name;
-			PrintSpace(2);
-			cout << "Poèet Akcií(Koupit): ";
+			cout << "\t\tPoèet Akcií(Koupit): ";
 			cin >> Stocks;
+			cout << "\t\t";
 
-			PrintSpace(2);
-			if (tree->DoesExist(Name) && tree->AvaibleStocks(Name, Stocks) && user->GetMoney() >= Stocks * tree->GetPerStock(Name)) {
-				tree->BuyStocks(Name, Stocks);
-				(list->DoesExist(Name)) ? list->InsertTo(Name, Stocks) : list->Insert(Name, Stocks, tree);
-				user->SetMoney(user->GetMoney() - Stocks * tree->GetPerStock(Name));
-				cout << "Obchod úspìšnì uzavøen";
+
+			for (auto && const Index : tree->GetCompanies(1))
+			{
+				if (Name == Index)
+				{
+					BuyInvestment(tree, user, list, Name, Stocks)
+						? cout << "Obchod úspìšnì uzavøen"
+						: cout << "Nic takového!!";
+
+					break;
+				}
 			}
-			else {
-				cout << "Nic takového!!";
-			}
+
 			CleanConsole(1);
 			break;
 		}
-		case 2: {
+		case 2: 
+		{
 			string Name;
-			unsigned long long int Stocks;
+
+			uint64_t Stocks;
+
 
 			CleanConsole(0);
 
-			PrintCompanies(tree);
-			PrintNoLonger(NoLonger);
-			PrintInvestment(list);
-			PrintUser(user);
+			Print(tree, list, user);
 
-			PrintSpace(2);
-			cout << "Název spoleènosti: ";
+			cout << "\t\tNázev spoleènosti: ";
 			cin >> Name;
-			PrintSpace(2);
-			cout << "Poèet Akcií(Prodat): ";
+			cout << "\t\tPoèet Akcií(Prodat): ";
 			cin >> Stocks;
+			cout << "\t\t";
 
-			PrintSpace(2);
 		
-			if (Stocks <= list->GetStocks(Name)&&list->DoesExist(Name))
+			if (list->DoesExist(Name) && Stocks <= list->GetStocks(Name))
 			{
+				uint64_t Money = list->Remove(Name, Stocks);
+
+
 				tree->ReturnStocks(Name, Stocks);
 
-				unsigned long long int Months = list->GetDuration(Name);
-				unsigned long long int Money = list->Remove(Name, Stocks);
-
-				if (Money > 100000 && Months <36)
+				if (Money > 100000 && list->GetDuration(Name) <36)
 				{
 					user->SetMoney(user->GetMoney() + Money / 100 * 85);
 					cout << "Obchod úspìšnì uzavøen s daní!" << endl << "\t\tNa úèet: " << Money << "Kè";
@@ -258,48 +290,49 @@ int main() {
 			CleanConsole(2);
 			break;
 		}
-		case 3:{
-			unsigned long long int Months;
+		case 3:
+		{
+			uint64_t Months;
+
 
 			CleanConsole(0);
 
-			PrintCompanies(tree);
-			PrintNoLonger(NoLonger);
-			PrintInvestment(list);
-			PrintUser(user);
+			Print(tree, list, user);
 
-			PrintSpace(2);
-			cout << "Mìsícù: ";
+			cout << "\t\tMìsícù: ";
 			cin >> Months;
-			AfterMonth(Months, list, tree, NoLonger);
+
+			AfterMonth(Months, list, tree, user);
 			
-			if (tree->NothingExist()) {
+
+			if (tree->GetCompanies(1).size() == 0)
+			{
 				CleanConsole(0);
 
-				
-				PrintEnter(4);
-				PrintSpace(3);
-				cout << "Konec Simulace" << endl;
-
-				PrintSpace(3);
-				cout << "Stav penìz: " << user->GetMoney() << endl;
-				
-				PrintSpace(3);
-				cout << "Gratuluji k tak skvìlému výkonu " << user->GetName() << endl;
-
+				cout << endl << endl << endl << endl;
+				cout << "\t\t\tKonec Simulace" << endl;
+				cout << "\t\t\tStav penìz: " << user->GetMoney() << endl;
+				cout << "\t\t\tGratuluji k tak skvìlému výkonu " << user->GetName() << endl;
 				PrintLetter('/', 55);
+
 				CleanConsole(5);
+
 				Option = 4;
+
 				break;
 			}
-			else {
+			else
+			{
 				CleanConsole(1);
 			}
 			break;
 		}
 		case 4:
+		{
+			break;
+		}
 		default:
-			return 0;
+			break;
 		}
 
 	} while (Option != 4);

@@ -4,6 +4,8 @@
 
 using namespace std;
 
+
+
 List::List()
 {
 	this->Head = nullptr;
@@ -14,15 +16,16 @@ List::List()
 
 List::~List()
 {
-	delete[] this->Head;
+	delete this->Head;
 	delete this->Tail;
 }
 
 
-ListItem::ListItem(string Name,unsigned long long int Stocks, Tree* tree) {
+ListItem::ListItem(string Name,uint64_t Stocks, Tree* item)
+{
 	this->Name = Name;
 	this->Stocks = Stocks;
-	this->PerOneStock = tree->GetPerStock(this->Name);
+	this->PerOneStock = item->GetPerStock(this->Name);
 	this->Next = nullptr;
 	this->Previous = nullptr;
 	this->Months = 0;
@@ -30,201 +33,278 @@ ListItem::ListItem(string Name,unsigned long long int Stocks, Tree* tree) {
 
 
 
-unsigned int List::GetCount() {
+uint64_t List::GetCount()
+{
 	return this->Count;
 }
 
 
-unsigned long long int List::GetStocks(string Name) {
-	return GetStocks(Name, this->Head);
-}
+uint64_t List::GetStocks(string Name)
+{
+	ListItem* item = GiveObjectOrNull(Name, this->Head);
 
-unsigned long long int List::GetStocks(string Name, ListItem* head) {
-	if (head == nullptr)return 0;
+	uint64_t Stocks;
 
-	if (head->Name == Name) {
-		return head->Stocks;
+
+	if (item == nullptr)
+	{
+		return 0;
 	}
-	return GetStocks(Name, head->Next);
+
+	Stocks = item->Stocks;
+
+
+	item = nullptr;
+
+
+	return Stocks;
 }
 
 
-void List::Insert(string Name, unsigned long long int Stocks, Tree* tree) {
+void List::Insert(string Name, uint64_t Stocks, Tree* tree)
+{
 	this->Count++;
 	Insert(Name, Stocks, this->Head, tree);
 }
 
 
-void List::Insert(string Name, unsigned long long int Stocks,ListItem* head, Tree* tree) {
-
-
-	if (this->Head == nullptr) {
+void List::Insert(string Name, uint64_t Stocks,ListItem* item, Tree* tree)
+{
+	if (this->Head == nullptr)
+	{
 		this->Head = new ListItem(Name, Stocks, tree);
-
 		this->Tail = this->Head;
 
 		return;
 	}
 
 
-	if (head->Next == nullptr)
+	if (item->Next == nullptr)
 	{
-		head->Next = new ListItem(Name, Stocks, tree);
-		head->Next->Previous = head;
-		this->Tail = head->Next;
+		item->Next = new ListItem(Name, Stocks, tree);
+		item->Next->Previous = item;
+		this->Tail = item->Next;
 
 		return;
 	}
 
-	Insert(Name, Stocks, head->Next, tree);
+	Insert(Name, Stocks, item->Next, tree);
 }
 
-void List::InsertTo(string Name, unsigned long long int Stocks) {
-	InsertTo(Name, Stocks, this->Head);
-}
 
-void List::InsertTo(string Name, unsigned long long int Stocks, ListItem* head) {
-	if (head == nullptr)return;
+void List::InsertTo(string Name, uint64_t Stocks)
+{
+	ListItem* item = GiveObjectOrNull(Name, this->Head);
 
-	if (head->Name == Name) {
-		head->Stocks += Stocks;
-		return;
+
+	if (item == nullptr)
+	{
+		return ;
 	}
-	InsertTo(Name, Stocks, head->Next);
+
+	item->Stocks += Stocks;
+
+
+	item = nullptr;
+
+
+	return;
 }
 
+uint64_t List::Remove(string Name, uint64_t Stocks)
+{
+	ListItem* item = GiveObjectOrNull(Name, this->Head);
 
-unsigned long long int List::Remove(string Name) {
-	return Remove(Name, this->Head);
-}
+	uint64_t ItemStocks = item->Stocks;
+	uint64_t ItemPerStock = item->PerOneStock;
 
-unsigned long long int List::Remove(string Name, ListItem* head) {
-	if (head == nullptr) {
+
+	if (item == nullptr)
+	{
 		return 0;
 	}
 
-	if (head->Name == Name) {
-		unsigned long long int Money = head->Stocks * head->PerOneStock;
 
-		if (this->Head == head)
-			this->Head = head->Next;
+	if (ItemStocks <= Stocks)
+	{
+		uint64_t Money = ItemStocks * ItemPerStock;
 
-		if (this->Tail == head)
-			this->Tail = head->Previous;
+		if (this->Head == item)
+			this->Head = item->Next;
 
-		if (head->Next != nullptr) 
-			head->Next->Previous = head->Previous;
+		if (this->Tail == item)
+			this->Tail = item->Previous;
 
-		if (head->Previous != nullptr) 
-			head->Previous->Next = head->Next;
+		if (item->Next != nullptr)
+			item->Next->Previous = item->Previous;
 
-		delete head;
+		if (item->Previous != nullptr)
+			item->Previous->Next = item->Next;
+
+		delete item;
+		item = nullptr;
+
 		return Money;
 	}
-	return Remove(Name, head->Next);
-}
 
-unsigned long long int List::Remove(string Name, unsigned long long int Stocks) {
-	return Remove(Name, Stocks, this->Head);
-}
+	item->Stocks -= Stocks;
 
-unsigned long long int List::Remove(string Name, unsigned long long int Stocks, ListItem* head) {
-	if (head == nullptr) {
-		return 0;
-	}
 
-	if (head->Name == Name) {
+	item = nullptr;
 
-		if (head->Stocks <= Stocks) {
-			return Remove(Name, head);
-		}
 
-		head->Stocks = head->Stocks - Stocks;
-
-		return head->PerOneStock * Stocks;
-	}
-	return Remove(Name, Stocks, head->Next);
+	return ItemPerStock * Stocks;
 }
 
 
-void List::Print() {
-	cout << "\t\t";
-	Print(this->Head,0);
+void List::Print()
+{
+	cout << endl << "\t\t";
+
+	Print(this->Head, 0);
+
+	cout << endl;
 }
 
-void List::Print(ListItem* head, int Index) {
-	if (head == nullptr) {
+
+void List::Print(ListItem* list, uint16_t Index)
+{
+	if (list == nullptr)
+	{
 		return;
 	}
-	if (Index == 3) {
+
+
+	if (Index == 3)
+	{
 		cout <<endl << "\t\t";
 		Index = 0;
 	}
-	cout << head->Name << " : " << head->Stocks * head->PerOneStock
-		<< "Kè (A: " << head->Stocks << ", M: " << head->Months << ")" << "    ";
+
+	cout << list->Name << " : " << list->Stocks * list->PerOneStock
+		<< "Kè (A: " << list->Stocks << ", M: " << list->Months << ")" << "    ";
 	
-	Print(head->Next, Index+=1);
+	Print(list->Next, Index += 1);
 }
 
-void List::ChangePerMonth(Tree* tree) {
+
+void List::ChangePerMonth(Tree* tree)
+{
 	ChangePerMonth(this->Head,tree);
 }
 
 
-void List::ChangePerMonth(ListItem* &head,Tree* tree) {
-	if (head == nullptr) {
+void List::ChangePerMonth(ListItem* item,Tree* tree)
+{
+	if (item == nullptr)
+	{
 		return;
 	}
-	head->Months++;
-	head->PerOneStock = tree->GetPerStock(head->Name);
-	ChangePerMonth(head->Next, tree);
 
-	if (head->PerOneStock <= 0)
+	item->Months++;
+	item->PerOneStock = tree->GetPerStock(item->Name);
+
+	ChangePerMonth(item->Next, tree);
+
+
+	if (item->PerOneStock <= 0)
 	{
-		Remove(head->Name,head);
+		Remove(item->Name, item->Stocks);
 	}
 }
 
-bool List::DoesExist(string Name) {
-	return DoesExist(Name, this->Head);
-}
 
-bool List::DoesExist(string Name, ListItem* head) {
-	if (head == nullptr)return 0;
-	if (head->Name == Name)return 1;
-	return DoesExist(Name, head->Next);
-}
+bool List::DoesExist(string Name)
+{
+	ListItem* item = GiveObjectOrNull(Name, this->Head);
 
-unsigned long long int List::GetDuration(string Name) {
-	return GetDuration(Name, this->Head);
-}
 
-unsigned long long int List::GetDuration(string Name, const ListItem* head) {
-	if (head->Name == Name) {
-		return head->Months;
+	if (item == nullptr)
+	{
+		return false;
 	}
-	return GetDuration(Name, head->Next);
+
+
+	item = nullptr;
+
+
+	return true;
 }
 
 
-vector<string> List::Delete() {
+uint64_t List::GetDuration(string Name)
+{
+	ListItem* item = GiveObjectOrNull(Name, this->Head);
+
+	uint64_t Months;
+
+
+	if (item == nullptr)
+	{
+		return 0;
+	}
+
+	Months = item->Months;
+
+
+	item = nullptr;
+
+
+	return Months;
+}
+
+
+vector<string> List::Delete()
+{
 	vector<string> Deleted = Delete(Deleted, this->Head);
 
-	for (auto head : Deleted) {
-		Remove(head);
+	for (auto item : Deleted)
+	{
+		RemoveByName(item);
 	}
 
 	return Deleted;
 }
 
 
-vector<string> List::Delete(vector<string>Deleted, ListItem* head) {
-	if (head == nullptr)
+vector<string> List::Delete(vector<string>Deleted, ListItem* item)
+{
+	if (item == nullptr)
 		return Deleted;
 
-	if (head->PerOneStock <= 0) {
-		Deleted.push_back(head->Name);
+	if (item->PerOneStock <= 0) {
+		Deleted.push_back(item->Name);
 	}
 
-	return Delete(Deleted, head->Next);
+	return Delete(Deleted, item->Next);
+}
+
+
+
+ListItem* List::GiveObjectOrNull(string Name, ListItem* item)
+{
+	if (item == nullptr)
+		return nullptr;
+
+	if (item->Name == Name) {
+		return item;
+	}
+
+	return GiveObjectOrNull(Name, item->Next);
+}
+
+
+void List::RemoveByName(string Name)
+{
+	ListItem* item = GiveObjectOrNull(Name, this->Head);
+
+	if (item == nullptr)
+	{
+		return;
+	}
+
+	Remove(item->Name, item->Stocks);
+
+
+	item = nullptr;
 }
